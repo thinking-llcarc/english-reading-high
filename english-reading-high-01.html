@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>会話文読解 実践授業｜オンライン塾 THINKING</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#f7f5f0;--surface:#fff;--surface2:#f0ede6;
+  --border:#ddd9d0;--text:#1a1814;--text2:#6b6760;--text3:#9b9892;
+  --accent:#2c5f8a;--accent-light:#e8f1f8;
+  --teal:#0f6e56;--teal-light:#e1f5ee;
+  --amber:#854f0b;--amber-light:#faeeda;
+  --purple:#534ab7;--purple-light:#eeedfe;
+  --green:#3b6d11;--green-light:#eaf3de;
+  --red:#a32d2d;--red-light:#fcebeb;
+  --coral:#993c1d;--coral-light:#faece7;
+  --pink:#993556;--pink-light:#fbeaf0;
+  --radius:10px;--radius-lg:16px;
+}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:15px;min-height:100vh;}
+
+.page-header{background:var(--surface);border-bottom:0.5px solid var(--border);padding:13px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;position:sticky;top:0;z-index:200;}
+.brand-logo{width:36px;height:36px;border-radius:9px;background:var(--accent);color:#fff;font-size:18px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.brand-name{font-size:13px;font-weight:700;}
+.brand-tagline{font-size:10px;color:var(--text3);margin-top:1px;}
+.phase-indicator{display:flex;gap:6px;align-items:center;}
+.pi-dot{width:10px;height:10px;border-radius:50%;background:var(--border);transition:all 0.3s;}
+.pi-dot.active{background:var(--accent);transform:scale(1.3);}
+.pi-dot.done{background:var(--teal);}
+.pi-label{font-size:12px;font-weight:700;color:var(--text2);margin-left:4px;}
+
+.container{max-width:920px;margin:0 auto;padding:24px 16px 80px;}
+.phase-panel{display:none;}
+.phase-panel.active{display:block;animation:fadeIn 0.3s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+.phase-badge{display:inline-flex;align-items:center;gap:10px;margin-bottom:20px;}
+.pb-num{width:44px;height:44px;border-radius:12px;color:#fff;font-size:18px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.pb-text{font-size:20px;font-weight:700;color:var(--text);line-height:1.2;}
+.pb-sub{font-size:12px;color:var(--text2);margin-top:2px;}
+
+.card{background:var(--surface);border-radius:var(--radius-lg);border:0.5px solid var(--border);padding:22px;margin-bottom:14px;}
+.section-label{font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);margin-bottom:11px;}
+.divider{height:0.5px;background:var(--border);margin:18px 0;}
+
+/* APRIL THEME BANNER */
+.theme-banner{background:linear-gradient(135deg,#1a3a5c 0%,#2c5f8a 100%);border-radius:var(--radius-lg);padding:20px 22px;margin-bottom:16px;color:#fff;}
+.tb-month{font-size:11px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;opacity:0.6;margin-bottom:6px;}
+.tb-title{font-size:17px;font-weight:700;margin-bottom:12px;}
+.tb-rules{display:flex;flex-direction:column;gap:6px;}
+.tb-rule{display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.65;}
+.tb-rule-num{width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,0.2);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+
+/* CONVERSATION */
+.conv-line{display:flex;gap:12px;align-items:flex-start;margin-bottom:10px;}
+.conv-speaker{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;flex-shrink:0;margin-top:3px;font-family:'Noto Sans JP',sans-serif;min-width:90px;text-align:center;}
+.sp-minyoung{background:var(--accent-light);color:var(--accent);}
+.sp-lisa{background:var(--teal-light);color:var(--teal);}
+.conv-text{font-family:'Source Serif 4',serif;font-size:14.5px;line-height:1.95;}
+.hl-key{background:#fff3cd;border-radius:2px;padding:0 2px;}
+.hl-ans{background:var(--teal-light);border-radius:2px;padding:0 2px;font-weight:700;}
+.hl-signal{background:var(--coral-light);border-radius:2px;padding:0 2px;font-weight:700;}
+.hl-trap{background:var(--red-light);border-radius:2px;padding:0 2px;text-decoration:line-through;text-decoration-color:var(--red);}
+
+/* READ PHASE: sentence role tags */
+.sent-role{font-size:10px;font-weight:700;padding:1px 7px;border-radius:4px;margin-left:6px;vertical-align:middle;font-family:'Noto Sans JP',sans-serif;}
+.role-fact{background:var(--accent-light);color:var(--accent);}
+.role-key{background:var(--teal-light);color:var(--teal);}
+.role-trap{background:var(--red-light);color:var(--red);}
+.role-contrast{background:var(--coral-light);color:var(--coral);}
+
+/* QUESTION */
+.q-block{background:var(--surface2);border-radius:var(--radius-lg);border:0.5px solid var(--border);padding:16px 18px;margin-bottom:12px;}
+.q-num-badge{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;font-size:12px;font-weight:700;flex-shrink:0;vertical-align:middle;margin-right:8px;}
+.q-stem{font-family:'Source Serif 4',serif;font-size:14px;font-weight:600;color:var(--text);display:inline;vertical-align:middle;}
+.choices{display:flex;flex-direction:column;gap:6px;margin-top:10px;}
+.choice-btn{display:flex;align-items:flex-start;gap:10px;padding:9px 12px;background:var(--surface);border-radius:var(--radius);border:0.5px solid var(--border);cursor:pointer;font-size:13px;font-family:'Source Serif 4',serif;line-height:1.65;transition:all 0.15s;text-align:left;width:100%;}
+.choice-btn:hover{border-color:var(--accent);background:var(--accent-light);}
+.choice-btn.selected{border-color:var(--accent);background:var(--accent-light);}
+.choice-btn.correct{background:var(--teal-light);border-color:var(--teal);font-weight:700;color:var(--teal);}
+.choice-btn.wrong{background:var(--red-light);border-color:var(--red-light);color:var(--red);opacity:0.65;}
+.cn{font-size:10px;font-weight:700;color:var(--text3);flex-shrink:0;margin-top:2px;font-family:'Noto Sans JP',sans-serif;min-width:14px;}
+.reason-input{width:100%;padding:10px 13px;font-size:13px;font-family:'Noto Sans JP',sans-serif;background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);color:var(--text);resize:none;transition:border 0.2s;line-height:1.6;margin-top:8px;}
+.reason-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(44,95,138,0.1);}
+.reason-label{font-size:10px;font-weight:700;color:var(--text3);letter-spacing:0.08em;text-transform:uppercase;margin-top:10px;margin-bottom:4px;display:block;}
+
+/* ANSWER ANALYSIS */
+.ans-block{border-radius:var(--radius-lg);overflow:hidden;margin-bottom:12px;border:0.5px solid var(--border);}
+.ans-hdr{padding:12px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;background:var(--surface);}
+.ans-hdr:hover{background:var(--surface2);}
+.ans-arrow{font-size:11px;transition:transform 0.2s;margin-left:auto;color:var(--text3);}
+.ans-body{display:none;padding:16px;border-top:0.5px solid var(--border);}
+.ans-body.open{display:block;}
+
+.ca-grid{display:flex;flex-direction:column;gap:7px;margin-top:10px;}
+.ca-row{border-radius:var(--radius);overflow:hidden;border:0.5px solid var(--border);}
+.ca-hdr{padding:8px 12px;display:flex;align-items:flex-start;gap:8px;font-size:13px;font-family:'Source Serif 4',serif;line-height:1.6;}
+.ca-hdr.ca-correct{background:var(--teal-light);border-bottom:0.5px solid #9fe1cb;}
+.ca-hdr.ca-wrong{background:var(--red-light);}
+.ca-detail{padding:8px 12px 10px 34px;font-size:12px;line-height:1.75;background:var(--surface);display:none;}
+.ca-detail.open{display:block;}
+.ca-num{font-size:10px;font-weight:700;flex-shrink:0;margin-top:2px;font-family:'Noto Sans JP',sans-serif;}
+.ca-correct .ca-num{color:var(--teal);}
+.ca-wrong .ca-num{color:var(--red);}
+.tag-ok{display:inline-block;background:var(--teal-light);color:var(--teal);border-radius:3px;padding:1px 6px;font-size:10px;font-weight:700;margin-left:6px;font-family:'Noto Sans JP',sans-serif;}
+.tag-ng{display:inline-block;background:var(--red-light);color:var(--red);border-radius:3px;padding:1px 6px;font-size:10px;font-weight:700;margin-left:6px;font-family:'Noto Sans JP',sans-serif;}
+.tag-trap{display:inline-block;background:var(--amber-light);color:var(--amber);border-radius:3px;padding:1px 6px;font-size:10px;font-weight:700;margin-left:6px;font-family:'Noto Sans JP',sans-serif;}
+
+/* MAKER INTENT */
+.maker-box{border-radius:var(--radius);padding:11px 14px;background:var(--purple-light);border:0.5px solid #afa9ec;margin-top:8px;font-size:13px;line-height:1.7;}
+.maker-label{font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--purple);margin-bottom:4px;}
+
+/* SCORE */
+.score-card{background:var(--surface2);border-radius:var(--radius-lg);padding:16px 18px;border:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.score-num{font-size:28px;font-weight:700;color:var(--accent);}
+
+/* PARA READING */
+.para-unit{border-radius:var(--radius-lg);overflow:hidden;margin-bottom:12px;border:0.5px solid var(--border);}
+.pu-hdr{padding:11px 16px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700;cursor:pointer;}
+.pu-hdr:hover{opacity:0.85;}
+.pu-body{display:none;padding:15px 16px;border-top:0.5px solid var(--border);font-size:14px;line-height:1.8;}
+.pu-body.open{display:block;}
+
+/* FLOW */
+.flow-chain{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:8px 0;}
+.fb{padding:5px 11px;border-radius:6px;font-size:12px;font-weight:700;font-family:'Noto Sans JP',sans-serif;white-space:nowrap;}
+.fb-acc{background:var(--accent-light);border:0.5px solid #b5d4f4;color:var(--accent);}
+.fb-teal{background:var(--teal-light);border:0.5px solid #9fe1cb;color:var(--teal);}
+.fb-amb{background:var(--amber-light);border:0.5px solid #fac775;color:var(--amber);}
+.fb-gray{background:var(--surface2);border:0.5px solid var(--border);color:var(--text2);}
+.fb-red{background:var(--red-light);border:0.5px solid #f09595;color:var(--red);}
+.fa{color:var(--text3);font-size:14px;font-weight:700;}
+
+/* CALLOUT */
+.callout{border-radius:var(--radius);padding:12px 15px;margin:10px 0;font-size:14px;line-height:1.75;}
+.callout-yellow{background:#fffbea;border-left:3px solid #e6c200;}
+.callout-blue{background:var(--accent-light);border-left:3px solid var(--accent);}
+.callout-teal{background:var(--teal-light);border-left:3px solid var(--teal);}
+.callout-purple{background:var(--purple-light);border-left:3px solid var(--purple);}
+.cl-label{font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px;}
+.callout-yellow .cl-label{color:#7a6600;}
+.callout-blue .cl-label{color:var(--accent);}
+.callout-teal .cl-label{color:var(--teal);}
+.callout-purple .cl-label{color:var(--purple);}
+
+/* BUTTONS */
+.btn-primary{display:inline-flex;align-items:center;gap:6px;padding:12px 24px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius);font-family:'Noto Sans JP',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:background 0.2s,transform 0.1s;}
+.btn-primary:hover{background:#1e4a70;}.btn-primary:active{transform:scale(0.98);}
+.btn-secondary{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;background:var(--surface);color:var(--text);border:0.5px solid var(--border);border-radius:var(--radius);font-family:'Noto Sans JP',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:background 0.2s;}
+.btn-secondary:hover{background:var(--surface2);}
+.step-actions{display:flex;justify-content:space-between;align-items:center;margin-top:24px;padding-top:18px;border-top:0.5px solid var(--border);flex-wrap:wrap;gap:10px;}
+
+/* DETAIL TOGGLE */
+.detail-toggle{font-size:11px;color:var(--accent);cursor:pointer;font-weight:700;margin-left:6px;text-decoration:underline;}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="display:flex;align-items:center;gap:12px;">
+    <div class="brand-logo">T</div>
+    <div>
+      <div class="brand-name">英語読解特訓｜オンライン塾 THINKING</div>
+      <div class="brand-tagline">会話文読解 — Lisa の大学生活と節約術</div>
+    </div>
+  </div>
+  <div class="phase-indicator">
+    <div class="pi-dot active" id="dot1"></div>
+    <div class="pi-dot" id="dot2"></div>
+    <div class="pi-dot" id="dot3"></div>
+    <div class="pi-dot" id="dot4"></div>
+    <div class="pi-label" id="phase-label">PHASE 1 / 4</div>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ══════════════════════════
+     PHASE 1 — 読むフェーズ
+══════════════════════════ -->
+<div class="phase-panel active" id="phase1">
+
+  <div class="phase-badge">
+    <div class="pb-num" style="background:var(--accent);">1</div>
+    <div>
+      <div class="pb-text">読むフェーズ</div>
+      <div class="pb-sub">問題を解く前に「会話の構造」を完全に把握する</div>
+    </div>
+  </div>
+
+  <!-- 4月テーマ -->
+  <div class="theme-banner" style="margin-bottom:16px;">
+    <div class="tb-month">April Theme — 今月の鉄則</div>
+    <div class="tb-title">「惜しかった」は存在しない。全問、根拠まで言い切れ。</div>
+    <div class="tb-rules">
+      <div class="tb-rule"><div class="tb-rule-num">①</div><div>正解の理由 + 不正解3つそれぞれの具体的な理由を全部言えること。「文脈が合わない」で終わるな。<strong>「この選択肢が入るとこうなってしまうから」</strong>まで言え。</div></div>
+      <div class="tb-rule"><div class="tb-rule-num">②</div><div>会話を1発言ずつ「何を言っているか」を掴みながら読む。<strong>この発言とこの発言はどう繋がっているか</strong>を常に意識する。</div></div>
+      <div class="tb-rule"><div class="tb-rule-num">③</div><div>不正解の選択肢には<strong>作った人の意図</strong>がある。どんなミスをする人を引っ掛けようとしているのか。その罠の構造を看破しろ。</div></div>
+    </div>
+  </div>
+
+  <div class="callout callout-yellow" style="margin-bottom:16px;">
+    <div class="cl-label">読むフェーズのルール</div>
+    問題は<strong>まだ解かない</strong>。まず会話全体を読んで「Min YoungはLisaに何を聞いていて、Lisaは何を答えているか」という流れを掴む。各発言に「何の情報を提供しているか」のラベルを頭の中で貼りながら読む。
+  </div>
+
+  <!-- 会話文 -->
+  <div class="card">
+    <div class="section-label">会話文 — Min Young と Lisa の対話</div>
+
+    <div style="margin-bottom:6px;">
+      <div class="conv-line">
+        <span class="conv-speaker sp-minyoung">Min Young</span>
+        <span class="conv-text">Thanks for talking with me today, Lisa. Tell us a little about yourself.</span>
+      </div>
+      <div class="conv-line">
+        <span class="conv-speaker sp-lisa">Lisa</span>
+        <span class="conv-text">Well, I'm 21, and I'm a junior at a university in Chicago.</span>
+      </div>
+    </div>
+
+    <div style="background:var(--surface2);border-radius:var(--radius);padding:10px 14px;margin-bottom:10px;font-size:12px;color:var(--text2);">
+      ↓ Min Youngの質問テーマ：<strong>大学の学費をどうやって払っているか</strong>
+    </div>
+
+    <div style="margin-bottom:6px;">
+      <div class="conv-line">
+        <span class="conv-speaker sp-minyoung">Min Young</span>
+        <span class="conv-text">How are you paying for your college education?</span>
+      </div>
+      <div class="conv-line">
+        <span class="conv-speaker sp-lisa">Lisa</span>
+        <span class="conv-text">
+          My expenses for every semester are almost $15,000. At the start of each semester, I get <span class="hl-key">$2,000 from my college scholarship</span>. My parents pay <span class="hl-key">the rest of the $10,000 tuition</span>, and they give me <span class="hl-key">$2,000 for personal expenses</span>. I have to pay <span class="hl-ans">the remaining $3,000 myself</span>.
+        </span>
+      </div>
+    </div>
+
+    <!-- 内訳ボックス -->
+    <div style="background:var(--accent-light);border-radius:var(--radius);padding:12px 14px;margin-bottom:10px;font-size:13px;border:0.5px solid #b5d4f4;">
+      <div style="font-size:10px;font-weight:700;color:var(--accent);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;">Lisa の1学期あたりの費用内訳（Q29の核心）</div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;">
+        <div style="background:var(--surface);border-radius:6px;padding:7px 10px;font-size:12px;">奨学金：<strong>$2,000</strong></div>
+        <div style="background:var(--surface);border-radius:6px;padding:7px 10px;font-size:12px;">学費（親）：<strong>$10,000</strong></div>
+        <div style="background:var(--surface);border-radius:6px;padding:7px 10px;font-size:12px;">個人費（親）：<strong>$2,000</strong></div>
+        <div style="background:var(--teal-light);border-radius:6px;padding:7px 10px;font-size:12px;border:0.5px solid #9fe1cb;font-weight:700;color:var(--teal);">自己負担：<strong>$3,000</strong> ← 正解の根拠</div>
+      </div>
+      <div style="margin-top:8px;font-size:12px;color:var(--text2);">合計：$2,000 + $10,000 + $2,000 + $3,000 = $15,000 ✓</div>
+    </div>
+
+    <div style="background:var(--surface2);border-radius:var(--radius);padding:10px 14px;margin-bottom:10px;font-size:12px;color:var(--text2);">
+      ↓ Min Youngの次の質問：<strong>パートタイムの仕事について</strong>
+    </div>
+
+    <div style="margin-bottom:6px;">
+      <div class="conv-line">
+        <span class="conv-speaker sp-minyoung">Min Young</span>
+        <span class="conv-text">How do you do that?</span>
+      </div>
+      <div class="conv-line">
+        <span class="conv-speaker sp-lisa">Lisa</span>
+        <span class="conv-text">
+          I have a part-time job as a waitress. I work three nights a week, and I usually earn about <span class="hl-key">$400 a week</span>. In a good week I can make <span class="hl-key">$600</span>, but in a bad week it can be <span class="hl-ans">less than $300</span>.
+        </span>
+      </div>
+    </div>
+
+    <!-- Q30核心ボックス -->
+    <div style="background:var(--amber-light);border-radius:var(--radius);padding:12px 14px;margin-bottom:10px;font-size:13px;border:0.5px solid #fac775;">
+      <div style="font-size:10px;font-weight:700;color:var(--amber);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;">Q30の核心 — 数字を正確に読む</div>
+      <div style="font-size:12px;line-height:1.8;">
+        <span style="color:var(--teal);font-weight:700;">通常：about $400</span>（usually = 通常は）<br>
+        <span style="color:var(--green);font-weight:700;">良い週：$600</span>（can make = できることがある）<br>
+        <span style="color:var(--red);font-weight:700;">悪い週：less than $300</span>（can be = なることがある）<br>
+        → <strong>「$400に届かないこともある」= her pay doesn't always reach $400</strong>が正解。
+      </div>
+    </div>
+
+    <div style="background:var(--surface2);border-radius:var(--radius);padding:10px 14px;margin-bottom:10px;font-size:12px;color:var(--text2);">
+      ↓ Min Youngの次の質問：<strong>お金の使い道・節約方法</strong>
+    </div>
+
+    <div style="margin-bottom:6px;">
+      <div class="conv-line">
+        <span class="conv-speaker sp-minyoung">Min Young</span>
+        <span class="conv-text">How do you spend that money?</span>
+      </div>
+      <div class="conv-line">
+        <span class="conv-speaker sp-lisa">Lisa</span>
+        <span class="conv-text">I use it to pay for my rent and meals at college. I also pay for things like my cell phone, books, transportation, and clothes.</span>
+      </div>
+    </div>
+
+    <div style="margin-bottom:6px;">
+      <div class="conv-line">
+        <span class="conv-speaker sp-minyoung">Min Young</span>
+        <span class="conv-text">You don't have much money for fun, do you?</span>
+      </div>
+      <div class="conv-line">
+        <span class="conv-speaker sp-lisa">Lisa</span>
+        <span class="conv-text">
+          That's true! My mother advised me to stick to my budget carefully so I don't have to borrow. <span class="hl-ans">I don't like to owe money.</span> And I don't want to pay the bank any interest. <span class="hl-key">I hardly ever go to the movies.</span> My roommates and I usually rent movies and split the cost. Also, <span class="hl-key">I don't go to restaurants very often.</span> My roommates and I usually cook our own food, so it's cheaper to eat.
+        </span>
+      </div>
+    </div>
+
+    <div style="margin-bottom:6px;">
+      <div class="conv-line">
+        <span class="conv-speaker sp-minyoung">Min Young</span>
+        <span class="conv-text">How else do you save money?</span>
+      </div>
+      <div class="conv-line">
+        <span class="conv-speaker sp-lisa">Lisa</span>
+        <span class="conv-text">
+          I try to walk or ride my bicycle to college. Oh, and I buy a lot of my clothes at second-hand stores. You can find some very cheap, nice clothes in those stores. I also try to borrow books and magazines from the library, rather than buy them. My roommates and I are also very careful to save water and electricity, so we don't have to pay a lot for those things.
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 読み解きチェック -->
+  <div class="card">
+    <div class="section-label">読み解きチェック — 解く前に答えられるか</div>
+    <div class="callout callout-teal" style="margin-bottom:12px;">
+      <div class="cl-label">確認事項</div>
+      問題を見る前に以下を言語化できるか確認する。これができていれば問題は「確認作業」になる。
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div style="border:0.5px solid var(--border);border-radius:var(--radius);overflow:hidden;">
+        <div style="background:var(--surface2);padding:8px 14px;font-size:12px;font-weight:700;color:var(--text2);">Q29に対応</div>
+        <div style="padding:10px 14px;font-size:13px;line-height:1.7;">Lisaの学費の内訳を言えるか？奨学金・親・自己負担それぞれいくら？<br><strong>→ $2,000（奨学金）+ $10,000（親の学費）+ $2,000（親の個人費）+ $3,000（自己負担）= $15,000</strong></div>
+      </div>
+      <div style="border:0.5px solid var(--border);border-radius:var(--radius);overflow:hidden;">
+        <div style="background:var(--surface2);padding:8px 14px;font-size:12px;font-weight:700;color:var(--text2);">Q30に対応</div>
+        <div style="padding:10px 14px;font-size:13px;line-height:1.7;">Lisaのバイト代の「通常・最大・最小」は？<br><strong>→ 通常：約$400 / 良い週：$600 / 悪い週：$300未満</strong></div>
+      </div>
+      <div style="border:0.5px solid var(--border);border-radius:var(--radius);overflow:hidden;">
+        <div style="background:var(--surface2);padding:8px 14px;font-size:12px;font-weight:700;color:var(--text2);">Q31〜33に対応</div>
+        <div style="padding:10px 14px;font-size:13px;line-height:1.7;">Min Youngの質問のテーマ一覧は？Lisaの節約方法を全部列挙できるか？<br><strong>→ 借金しない / 映画はほぼ行かない / 外食しない / 自転車 / 古着 / 図書館 / 節水・節電</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-actions">
+    <span style="font-size:12px;color:var(--text3);">会話の流れを掴んだら次へ</span>
+    <button class="btn-primary" onclick="goPhase(2)">読み完了 → PHASE 2 で問題を解く</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════
+     PHASE 2 — 解くフェーズ
+══════════════════════════ -->
+<div class="phase-panel" id="phase2">
+
+  <div class="phase-badge">
+    <div class="pb-num" style="background:var(--teal);">2</div>
+    <div>
+      <div class="pb-text">解くフェーズ</div>
+      <div class="pb-sub">選んだ理由 + 他3つが違う理由を全部言語化する</div>
+    </div>
+  </div>
+
+  <div class="callout callout-yellow" style="margin-bottom:16px;">
+    <div class="cl-label">解くフェーズのルール — 4月の鉄則</div>
+    ①選択肢を選んだら<strong>「会話のどの発言が根拠か」</strong>を具体的に書く。②不正解の選択肢は<strong>「この選択肢が正解だとしたらどういう意味になって、それが会話とどう矛盾するか」</strong>まで書く。「なんとなく違う」は不合格。
+  </div>
+
+  <!-- Q29 -->
+  <div class="q-block">
+    <span class="q-num-badge">29</span>
+    <span class="q-stem">Lisa tells Min Young that</span>
+    <div class="choices" id="q29">
+      <button class="choice-btn" onclick="sel('q29',1)"><span class="cn">①</span>she has to pay $15,000 for tuition every semester.</button>
+      <button class="choice-btn" onclick="sel('q29',2)"><span class="cn">②</span>she wishes she could get some money from a college scholarship.</button>
+      <button class="choice-btn" onclick="sel('q29',3)"><span class="cn">③</span>she gets $2,000 from her parents every semester.</button>
+      <button class="choice-btn" onclick="sel('q29',4)"><span class="cn">④</span>she has saved enough money to pay her own tuition.</button>
+    </div>
+    <span class="reason-label">正解の根拠（会話のどこ？）＋ 他の選択肢が違う具体的な理由</span>
+    <textarea class="reason-input" id="r29" rows="3" placeholder="例：Lisaの2つ目の発言で$3,000 myselfと言っている。①は$15,000全額を自分で払うという意味になるが実際は違う..."></textarea>
+  </div>
+
+  <!-- Q30 -->
+  <div class="q-block">
+    <span class="q-num-badge">30</span>
+    <span class="q-stem">In regards to her part-time job, Lisa says that</span>
+    <div class="choices" id="q30">
+      <button class="choice-btn" onclick="sel('q30',1)"><span class="cn">①</span>she can make at most $400 a week.</button>
+      <button class="choice-btn" onclick="sel('q30',2)"><span class="cn">②</span>she can make at least $600 a week.</button>
+      <button class="choice-btn" onclick="sel('q30',3)"><span class="cn">③</span>her pay doesn't always reach $400 a week.</button>
+      <button class="choice-btn" onclick="sel('q30',4)"><span class="cn">④</span>her pay is usually less than $300 a week.</button>
+    </div>
+    <span class="reason-label">数字を正確に根拠にして答える — 「usually / can / less than」に注目</span>
+    <textarea class="reason-input" id="r30" rows="3" placeholder="通常$400、良い週は$600、悪い週は$300未満。①は「せいぜい$400」という意味になるが..."></textarea>
+  </div>
+
+  <!-- Q31 -->
+  <div class="q-block">
+    <span class="q-num-badge">31</span>
+    <span class="q-stem">Min Young's questions to Lisa show that</span>
+    <div class="choices" id="q31">
+      <button class="choice-btn" onclick="sel('q31',1)"><span class="cn">①</span>she is interested in how Lisa manages her academic and personal expenses.</button>
+      <button class="choice-btn" onclick="sel('q31',2)"><span class="cn">②</span>she wants to know how college students enjoy their social lives with their friends.</button>
+      <button class="choice-btn" onclick="sel('q31',3)"><span class="cn">③</span>she wants to know the best way to save money without buying or using second-hand products.</button>
+      <button class="choice-btn" onclick="sel('q31',4)"><span class="cn">④</span>she thinks college students should do their best to pay their own tuition fees.</button>
+    </div>
+    <span class="reason-label">Min Youngが「何のために」質問しているかを問う。質問の全体テーマは？</span>
+    <textarea class="reason-input" id="r31" rows="3" placeholder="Min Youngは学費・バイト・節約をどうやっているかを聞いている。これはacademic and personal expensesの管理に関心があることを示す..."></textarea>
+  </div>
+
+  <!-- Q32 -->
+  <div class="q-block">
+    <span class="q-num-badge">32</span>
+    <span class="q-stem">One thing we learn about Lisa is that</span>
+    <div class="choices" id="q32">
+      <button class="choice-btn" onclick="sel('q32',1)"><span class="cn">①</span>she is thinking about moving back in with her parents to save money.</button>
+      <button class="choice-btn" onclick="sel('q32',2)"><span class="cn">②</span>she is planning to get a new job.</button>
+      <button class="choice-btn" onclick="sel('q32',3)"><span class="cn">③</span>she wants to avoid borrowing money.</button>
+      <button class="choice-btn" onclick="sel('q32',4)"><span class="cn">④</span>she often goes to the movies with her roommates.</button>
+    </div>
+    <span class="reason-label">Lisa の発言から「事実として言えること」を根拠付きで選ぶ</span>
+    <textarea class="reason-input" id="r32" rows="3" placeholder="Lisaは「I don't like to owe money」「母からbudgetを守るよう言われた」と言っている..."></textarea>
+  </div>
+
+  <!-- Q33 -->
+  <div class="q-block">
+    <span class="q-num-badge">33</span>
+    <span class="q-stem">Lisa can be described as someone who</span>
+    <div class="choices" id="q33">
+      <button class="choice-btn" onclick="sel('q33',1)"><span class="cn">①</span>is willing to work more often to make more money.</button>
+      <button class="choice-btn" onclick="sel('q33',2)"><span class="cn">②</span>cares a lot about her parents and how she can make them happy.</button>
+      <button class="choice-btn" onclick="sel('q33',3)"><span class="cn">③</span>wants to make the most of her college life by having fun with her roommates.</button>
+      <button class="choice-btn" onclick="sel('q33',4)"><span class="cn">④</span>tries to find ways to have fun without spending much money.</button>
+    </div>
+    <span class="reason-label">会話全体から「Lisaという人物をどう描写できるか」を問う総合問題</span>
+    <textarea class="reason-input" id="r33" rows="3" placeholder="映画は行かないがルームメイトとレンタル、外食しない、古着、図書館...これらから導かれるLisaの人物像は？"></textarea>
+  </div>
+
+  <div style="text-align:center;margin-top:16px;">
+    <button class="btn-primary" onclick="goPhase(3)">解答完了 → PHASE 3 で答え合わせ</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════
+     PHASE 3 — 答え合わせ＆解説
+══════════════════════════ -->
+<div class="phase-panel" id="phase3">
+
+  <div class="phase-badge">
+    <div class="pb-num" style="background:var(--purple);">3</div>
+    <div>
+      <div class="pb-text">答え合わせ — 全選択肢の解剖</div>
+      <div class="pb-sub">正解理由 + 罠の構造 + 作問者の意図まで</div>
+    </div>
+  </div>
+
+  <div class="score-card">
+    <div>
+      <div style="font-size:11px;font-weight:700;color:var(--text3);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px;">得点</div>
+      <div class="score-num" id="score-display">— / 5</div>
+    </div>
+    <div style="font-size:13px;color:var(--text2);text-align:right;line-height:1.7;">
+      正解より大事なこと：<br>
+      <strong style="color:var(--text);">「なぜ正解か」「なぜ他は×か」を全部言えるか</strong>
+    </div>
+  </div>
+
+  <!-- Q29 解説 -->
+  <div class="ans-block">
+    <div class="ans-hdr" onclick="toggleAns('a29')">
+      <div style="width:28px;height:28px;border-radius:8px;background:var(--teal);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">29</div>
+      <div style="flex:1;">
+        <div style="font-size:13px;font-weight:700;">Q.29 — Lisa tells Min Young that　正解：③</div>
+        <div style="font-size:11px;color:var(--text2);">学費の内訳を正確に読めているか</div>
+      </div>
+      <div class="ans-arrow" id="a29-arrow">▼</div>
+    </div>
+    <div class="ans-body" id="a29-body">
+      <div class="callout callout-blue" style="margin-bottom:12px;">
+        <div class="cl-label">正解の根拠</div>
+        "My parents pay the rest of the $10,000 tuition, and they give me <strong>$2,000 for personal expenses</strong>."<br>
+        → 親から受け取る$2,000は「学費」ではなく「個人費（personal expenses）」。
+      </div>
+      <div class="ca-grid">
+        <div class="ca-row">
+          <div class="ca-hdr ca-wrong" onclick="toggleDetail('d29-1')">
+            <span class="ca-num">①</span>
+            <span>she has to pay $15,000 for tuition every semester.</span>
+            <span class="tag-ng">×</span>
+            <span class="tag-trap">数字の引っ掛け</span>
+            <span class="detail-toggle">詳細</span>
+          </div>
+          <div class="ca-detail" id="d29-1">
+            <strong>なぜ×か（具体的に）：</strong><br>
+            $15,000は「学費（tuition）」ではなく「全ての費用（expenses）」。tutionは$10,000のみ。<br>
+            <strong>作問者の意図：</strong>$15,000という数字は会話に出てくる。「expenses = tuition」と読み間違えた人を引っ掛ける罠。数字を引用しつつ意味を変えている。
+          </div>
+        </div>
+        <div class="ca-row">
+          <div class="ca-hdr ca-wrong" onclick="toggleDetail('d29-2')">
+            <span class="ca-num">②</span>
+            <span>she wishes she could get some money from a college scholarship.</span>
+            <span class="tag-ng">×</span>
+            <span class="tag-trap">事実の逆転</span>
+            <span class="detail-toggle">詳細</span>
+          </div>
+          <div class="ca-detail" id="d29-2">
+            <strong>なぜ×か（具体的に）：</strong><br>
+            Lisaはすでに奨学金を受け取っている（"I get $2,000 from my college scholarship"）。「もらえたらいいのに」という意味になる②は現実の逆。<br>
+            <strong>作問者の意図：</strong>scholarshipという単語は登場する。「内容を正確に読まず単語反応で選ぶ人」への罠。
+          </div>
+        </div>
+        <div class="ca-row">
+          <div class="ca-hdr ca-correct" onclick="toggleDetail('d29-3')">
+            <span class="ca-num">③</span>
+            <span>she gets $2,000 from her parents every semester.</span>
+            <span class="tag-ok">正解</span>
+            <span class="detail-toggle">詳細</span>
+          </div>
+          <div class="ca-detail" id="d29-3">
+            <strong>なぜ正解か（具体的に）：</strong><br>
+            "they give me $2,000 for personal expenses" = 親から$2,000をもらう。これが正確に③と対応。<br>
+            $2,000という数字は奨学金でも登場するが、「親から」という条件で一致するのは③だけ。
+          </div>
+        </div>
+        <div class="ca-row">
+          <div class="ca-hdr ca-wrong" onclick="toggleDetail('d29-4')">
+            <span class="ca-num">④</span>
+            <span>she has saved enough money to pay her own tuition.</span>
+            <span class="tag-ng">×</span>
+            <span class="tag-trap">会話にない内容</span>
+            <span class="detail-toggle">詳細</span>
+          </div>
+          <div class="ca-detail" id="d29-4">
+            <strong>なぜ×か（具体的に）：</strong><br>
+            Lisaが学費を「貯金から払っている」という話は一切出てこない。毎学期バイト代から払っているという構造。<br>
+            <strong>作問者の意図：</strong>話題外の選択肢で「読まずに雰囲気で選ぶ人」への罠。
+          </div>
+        </div>
+      </div>
+      <div class="maker-box">
+        <div class="maker-label">作問者の意図まとめ</div>
+        この問題の罠は全て「数字は正しいが意味がずれている」か「単語は登場するが内容が逆」。<strong>$15,000・$2,000・scholarship</strong>という具体的な数字・単語を使って誘導している。数字を正確に把握できているかを試している。
+      </div>
+    </div>
+  </div>
+
+  <!-- Q30 解説 -->
+  <div class="ans-block">
+    <div class="ans-hdr" onclick="toggleAns('a30')">
+      <div style="width:28px;height:28px;border-radius:8px;background:var(--teal);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">30</div>
+      <div style="flex:1;">
+        <div style="font-size:13px;font-weight:700;">Q.30 — In regards to her part-time job　正解：③</div>
+        <div style="font-size:11px;color:var(--text2);">副詞・数字・部分否定を正確に読めているか</div>
+      </div>
+      <div class="ans-arrow" id="a30-arrow">▼</div>
+    </div>
+    <div class="ans-body" id="a30-body">
+      <div class="callout callout-blue" style="margin-bottom:12px;">
+        <div class="cl-label">正解の根拠</div>
+        "I <strong>usually</strong> earn about $400... but in a bad week it can be <strong>less than $300</strong>."<br>
+        → 通常は$400だが$300未満になることもある = $400に「常に届くわけではない」= doesn't always reach $400
+      </div>
+      <div class="ca-grid">
+        <div class="ca-row">
+          <div class="ca-hdr ca-wrong" onclick="toggleDetail('d30-1')">
+            <span class="ca-num">①</span>
+            <span>she can make at most $400 a week.</span>
+            <span class="tag-ng">×</span>
+            <span class="tag-trap">at most の意味ミス</span>
+            <span class="detail-toggle">詳細</span>
+          </div>
+          <div class="ca-detail" id="d30-1">
+            <strong>なぜ×か（具体的に）：</strong><br>
+            "at most $400" = 「最大でも$400」という意味。しかし良い週は$600になる。"at most"を入れると$600を超えないことになり本文と矛盾する。<br>
+            <strong>作問者の意図：</strong>$400という数字は登場するが「通常」の金額。at most（最大）という表現で上限として誤解させる罠。
+          </div>
+        </div>
+        <div class="ca-row">
+          <div class="ca-hdr ca-wrong" onclick="toggleDetail('d30-2')">
+            <span class="ca-num">②</span>
+            <span>she can make at least $600 a week.</span>
+            <span class="tag-ng">×</span>
+            <span class="tag-trap">at least の意味ミス</span>
+            <span class="detail-toggle">詳細</span>
+          </div>
+          <div class="ca-detail" id="d30-2">
+            <strong>なぜ×か（具体的に）：</strong><br>
+            "at least $600" = 「最低でも$600」。しかし$600は良い週だけの話。通常は$400、悪い週は$300未満なので「最低$600」は完全に間違い。<br>
+            <strong>作問者の意図：</strong>$600という数字は登場する。at least（最低）という表現を組み合わせて、数字だけ覚えた人を引っ掛ける。
+          </div>
+        </div>
+        <div class="ca-row">
+          <div class="ca-hdr ca-correct" onclick="toggleDetail('d30-3')">
+            <span class="ca-num">③</span>
+            <span>her pay doesn't always reach $400 a week.</span>
+            <span class="tag-ok">正解</span>
+            <span class="detail-toggle">詳細</span>
+          </div>
+          <div class="ca-detail" id="d30-3">
+            <strong>なぜ正解か（具体的に）：</strong><br>
+            "usually $400" + "bad week: less than $300" → 常に$400に届くわけではない = doesn't always reach $400。<br>
+            "doesn't always" は部分否定（常にではない）。これが会話の内容を正確に言い換えている。
+          </div>
+        </div>
+        <div class="ca-row">
+          <div class="ca-hdr ca-wrong" onclick="toggleDetail('d30-4')">
+            <span class="ca-num">④</span>
+            <span>her pay is usually less than $300 a week.</span>
+            <span class="tag-ng">×</span>
+            <span class="tag-trap">usually の意味ずらし</span>
+            <span class="detail-toggle">詳細</span>
+          </div>
+          <div class="ca-detail" id="d30-4">
+            <strong>なぜ×か（具体的に）：</strong><br>
+            $300未満は「悪い週」の話。④は「普段から$300未満」という意味になる。通常は$400なので真逆。<br>
+            <strong>作問者の意図：</strong>$300という数字と"usually"を組み合わせて、$300が「悪い週だけ」という情報を見落とした人を引っ掛ける。
+          </div>
+        </div>
+      </div>
+      <div class="maker-box">
+        <div class="maker-label">作問者の意図まとめ</div>
+        全選択肢が「会話に登場した数字（$400・$600・$300）」を使っている。<strong>at most / at least / usually / doesn't always</strong>という副詞・表現の意味を正確に理解しているかを試している。数字を覚えても表現を誤解すると全問ミスしうる構造。
+      </div>
+    </div>
+  </div>
+
+  <!-- Q31 解説 -->
+  <div class="ans-block">
+    <div class="ans-hdr" onclick="toggleAns('a31')">
+      <div style="width:28px;height:28px;border-radius:8px;background:var(--teal);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">31</div>
+      <div style="flex:1;">
+        <div style="font-size:13px;font-weight:700;">Q.31 — Min Young's questions to Lisa show that　正解：①</div>
+        <div style="font-size:11px;color:var(--text2);">質問の「全体テーマ」を俯瞰できているか</div>
+      </div>
+      <div class="ans-arrow" id="a31-arrow">▼</div>
+    </div>
+    <div class="ans-body" id="a31-body">
+      <div class="callout callout-blue" style="margin-bottom:12px;">
+        <div class="cl-label">正解の根拠</div>
+        Min Youngの質問を全て並べると：<br>
+        「学費どうやって払ってる？」「どうやってお金を工面してる？」「どう使ってる？」「節約は？」<br>
+        → 一貫して<strong>学費・生活費の管理（academic and personal expenses）</strong>に関心がある。
+      </div>
+      <div class="ca-grid">
+        <div class="ca-row">
+          <div class="ca-hdr ca-correct" onclick="toggleDetail('d31-1')">
+            <span class="ca-num">①</span>
+            <span>she is interested in how Lisa manages her academic and personal expenses.</span>
+            <span class="tag-ok">正解</span>
+            <span class="detail-toggle">詳細</span>
+          </div>
+          <div class="ca-detail" id="d31-1">
+            <strong>なぜ正解か：</strong>学費（academic）と個人費（personal）をどう管理しているか = Min Youngの質問の一貫したテーマ。「manages expenses」は全発言をまとめた正確な言い換え。
+          </div>
+        </div>
+        <div class="ca-row">
+          <div class="ca-hdr ca-wrong" onclick="toggleDetail('d31-2')">
+            <span class="ca-num">②</span>
+            <span>she wants to know how college students enjoy their social lives with their friends.</span>
+            <span class="tag-ng">×</span>
+            <span class="tag-trap">話題の拡大</span>
+            <span class="detail-toggle">詳細</span>
+          </div>
+          <div class="ca-detail" id="d31-2">
+            <strong>なぜ×か（具体的に）：</strong><br>
+            Min Youngは「大学生全般のソーシャルライフ」には一切触れていない。Lisaの個人的な費用管理の話。「college students」と一般化している点で誤り。<br>
+            <strong>作問者の意図：</strong>会話に「roommates」「movies」「restaurants」が出てくるので「社交的なテーマ」に見えるが、全て節約の文脈での話。文脈を外して単語反応する人への罠。
+          </div>
+        </div>
+        <div class="ca-row">
+          <div class="ca-hdr ca-wrong" onclick="toggleDetail('d31-3')">
+            <span class="ca-num">③</span>
+            <span>she wants to know the best way to save money without buying or using second-hand products.</span>
+            <span class="tag-ng">×</span>
+            <span class="tag-trap">条件の逆転</span>
+            <span class="detail-toggle">詳細</span>
+          </div>
+          <div class="ca-detail" id="d31-3">
+            <strong>なぜ×か（具体的に）：</strong><br>
+            「without second-hand products」= 古着を使わない方法。しかしLisaは古着店で買い物をしており、Min Youngもそれを否定していない。<br>
+            <strong>作問者の意図：</strong>「second-hand」という単語は会話に登場する。"without"という逆の条件を付け加えて意味を反転させた罠。
+          </div>
+        </div>
+        <div class="ca-row">
+          <div class="ca-hdr ca-wrong" onclick="toggleDetail('d31-4')">
+            <span class="ca-num">④</span>
+            <span>she thinks college students should do their best to pay their own tuition fees.</span>
+            <span class="tag-ng">×</span>
+            <span class="tag-trap">Min Youngの意見の捏造</span>
+            <span class="detail-toggle">詳細</span>
+          </div>
+          <div class="ca-detail" id="d31-4">
+            <strong>なぜ×か（具体的に）：</strong><br>
+            Min Youngは「大学生は自分で学費を払うべきだ」とは一言も言っていない。④はMin Youngの「意見・考え」を捏造している。<br>
+            <strong>作問者の意図：</strong>質問者が情報を引き出しているだけなのに、そこに「主張・意見」があると読み間違えた人を引っ掛ける。
+          </div>
+        </div>
+      </div>
+      <div class="maker-box">
+        <div class="maker-label">作問者の意図まとめ</div>
+        この問題は「会話全体のテーマを俯瞰できているか」を試している。各質問の個別内容ではなく<strong>「なぜその質問をしているのか」という意図の把握</strong>が求められる。②③④はそれぞれ「話題の拡大」「条件の逆転」「意見の捏造」という異なる罠の種類。
+      </div>
+    </div>
+  </div>
+
+  <!-- Q32 解説 -->
+  <div class="ans-block">
+    <div class="ans-hdr" onclick="toggleAns('a32')">
+      <div style="width:28px;height:28px;border-radius:8px;background:var(--teal);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">32</div>
+      <div style="flex:1;">
+        <div style="font-size:13px;font-weight:700;">Q.32 — One thing we learn about Lisa is that　正解：③</div>
+        <div style="font-size:11px;color:var(--text2);">「事実として言えること」を根拠付きで選べるか</div>
+      </div>
+      <div class="ans-arrow" id="a32-arrow">▼</div>
+    </div>
+    <div class="ans-body" id="a32-body">
+      <div class="callout callout-blue" style="margin-bottom:12px;">
+        <div class="cl-label">正解の根拠</div>
+        "I don't like to owe money. And I don't want to pay the bank any interest." + 母のアドバイス："stick to my budget carefully so I don't have to borrow"<br>
+        → 借金を避けたい = avoid borrowing money
+      </div>
+      <div class="ca-grid">
+        <div class="ca-row">
+          <div class="ca-hdr ca-wrong" onclick="toggleDetail('d32-1')">
+            <span class="ca-num">①</span>
+            <span>she is thinking about moving back in with her parents to save money.</span>
+            <span class="tag-ng">×</span>
+            <span class="tag-trap">会話にない内容</span>
+            <span class="detail-toggle">詳細</span>
+          </div>
+          <div class="ca-detail" id="d32-1">
+            <strong>なぜ×か（具体的に）：</strong><br>
+            親の家に戻る話は一切出てこない。会話からは想像もできない。<br>
+            <strong>作問者の意図：</strong>お金の節約が話題なので「ありそうな話」として読み間違える人向けの罠。
+          </div>
+        </div>
+        <div class="ca-row">
+          <div class="ca-hdr ca-wrong" onclick="toggleDetail('d32-2')">
+            <span class="ca-num">②</span>
+            <span>she is planning to get a new job.</span>
+            <span class="tag-ng">×</span>
+            <span class="tag-trap">会話にない内容</span>
+            <span class="detail-toggle">詳細</span>
+          </div>
+          <div class="ca-detail" id="d32-2">
+            <strong>なぜ×か（具体的に）：</strong><br>
+            新しい仕事を探す話は出てこない。現在のウェイトレスの仕事を続けている文脈しかない。<br>
+            <strong>作問者の意図：</strong>「もっとお金が必要そうだから転職するかも」という推測を誘う罠。本文にない内容を「ありそう」と感じる人向け。
+          </div>
+        </div>
+        <div class="ca-row">
+          <div class="ca-hdr ca-correct" onclick="toggleDetail('d32-3')">
+            <span class="ca-num">③</span>
+            <span>she wants to avoid borrowing money.</span>
+            <span class="tag-ok">正解</span>
+            <span class="detail-toggle">詳細</span>
+          </div>
+          <div class="ca-detail" id="d32-3">
+            <strong>なぜ正解か（具体的に）：</strong><br>
+            "I don't like to owe money"（借金したくない）+"I don't want to pay the bank any interest"（銀行に利子を払いたくない）+"stick to my budget carefully so I don't have to borrow"（借りなくて済むよう）→ 複数の根拠が③を支持している。
+          </div>
+        </div>
+        <div class="ca-row">
+          <div class="ca-hdr ca-wrong" onclick="toggleDetail('d32-4')">
+            <span class="ca-num">④</span>
+            <span>she often goes to the movies with her roommates.</span>
+            <span class="tag-ng">×</span>
+            <span class="tag-trap">事実の逆転</span>
+            <span class="detail-toggle">詳細</span>
+          </div>
+          <div class="ca-detail" id="d32-4">
+            <strong>なぜ×か（具体的に）：</strong><br>
+            "I <strong>hardly ever</strong> go to the movies." → ほとんど映画館には行かない。④は「よく行く（often）」になっており完全に逆。<br>
+            <strong>作問者の意図：</strong>"movies"は会話に登場する。"hardly ever"（ほとんど〜ない）という否定副詞を見落とした人が"often"を選ぶ構造。
+          </div>
+        </div>
+      </div>
+      <div class="maker-box">
+        <div class="maker-label">作問者の意図まとめ</div>
+        ①②は「会話に出てこない話」で埋め草的な罠。④は"hardly ever"という<strong>否定副詞を見落とした人を引っ掛ける精巧な罠</strong>。"movies"という単語反応で選んでしまう人が多い。③はLisaが複数回にわたって述べた一貫した態度。
+      </div>
+    </div>
+  </div>
+
+  <!-- Q33 解説 -->
+  <div class="ans-block">
+    <div class="ans-hdr" onclick="toggleAns('a33')">
+      <div style="width:28px;height:28px;border-radius:8px;background:var(--teal);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">33</div>
+      <div style="flex:1;">
+        <div style="font-size:13px;font-weight:700;">Q.33 — Lisa can be described as someone who　正解：④</div>
+        <div style="font-size:11px;color:var(--text2);">会話全体のLisa像を言語化できているか</div>
+      </div>
+      <div class="ans-arrow" id="a33-arrow">▼</div>
+    </div>
+    <div class="ans-body" id="a33-body">
+      <div class="callout callout-blue" style="margin-bottom:12px;">
+        <div class="cl-label">正解の根拠（会話全体から）</div>
+        映画はルームメイトとレンタル（映画は楽しむが映画館には行かない）/ 外食しないが家で料理（食事は楽しむがお金をかけない）/ 古着で服を楽しむ / 図書館で本を借りる<br>
+        → <strong>お金をかけずに楽しみを見つける人</strong> = tries to find ways to have fun without spending much money
+      </div>
+      <div class="ca-grid">
+        <div class="ca-row">
+          <div class="ca-hdr ca-wrong" onclick="toggleDetail('d33-1')">
+            <span class="ca-num">①</span>
+            <span>is willing to work more often to make more money.</span>
+            <span class="tag-ng">×</span>
+            <span class="tag-trap">会話にない意欲</span>
+            <span class="detail-toggle">詳細</span>
+          </div>
+          <div class="ca-detail" id="d33-1">
+            <strong>なぜ×か（具体的に）：</strong><br>
+            「もっと働いてお金を増やしたい」という発言は一切ない。Lisaのアプローチは「稼ぎを増やす」ではなく「支出を減らす」。<br>
+            <strong>作問者の意図：</strong>「お金が足りない → もっと働く」という安易な推測をする人への罠。
+          </div>
+        </div>
+        <div class="ca-row">
+          <div class="ca-hdr ca-wrong" onclick="toggleDetail('d33-2')">
+            <span class="ca-num">②</span>
+            <span>cares a lot about her parents and how she can make them happy.</span>
+            <span class="tag-ng">×</span>
+            <span class="tag-trap">親の話題の曲解</span>
+            <span class="detail-toggle">詳細</span>
+          </div>
+          <div class="ca-detail" id="d33-2">
+            <strong>なぜ×か（具体的に）：</strong><br>
+            親が学費を払ってくれる・母のアドバイスは出てくるが「親を喜ばせたい」という話は一切ない。<br>
+            <strong>作問者の意図：</strong>親に関する発言はあるが、それをLisaの「人物像・価値観」と結びつけ間違える人への罠。
+          </div>
+        </div>
+        <div class="ca-row">
+          <div class="ca-hdr ca-wrong" onclick="toggleDetail('d33-3')">
+            <span class="ca-num">③</span>
+            <span>wants to make the most of her college life by having fun with her roommates.</span>
+            <span class="tag-ng">×</span>
+            <span class="tag-trap">正しい要素の組み合わせミス</span>
+            <span class="detail-toggle">詳細</span>
+          </div>
+          <div class="ca-detail" id="d33-3">
+            <strong>なぜ×か（具体的に）：</strong><br>
+            roommates・fun という要素は会話に出てくる。しかし③は「ルームメイトと楽しむことで大学生活を充実させたい」という意味。Lisaの核心は「お金をかけずに楽しみを見つける」こと。楽しむ手段の話ではなくお金をかけないことの話。<br>
+            <strong>作問者の意図：</strong>正しい要素（roommates・fun）を組み合わせながら主旨をずらした最も巧妙な罠。④との違いは「お金をかけずに」という条件があるかどうか。
+          </div>
+        </div>
+        <div class="ca-row">
+          <div class="ca-hdr ca-correct" onclick="toggleDetail('d33-4')">
+            <span class="ca-num">④</span>
+            <span>tries to find ways to have fun without spending much money.</span>
+            <span class="tag-ok">正解</span>
+            <span class="detail-toggle">詳細</span>
+          </div>
+          <div class="ca-detail" id="d33-4">
+            <strong>なぜ正解か（具体的に）：</strong><br>
+            映画（行かないがレンタルで楽しむ）/ 食事（外食しないが家で料理）/ 服（古着で楽しむ）/ 本（図書館で借りる）→ 全てに「楽しみはあるがお金はかけない」という共通パターンがある。これがLisaの人物像。
+          </div>
+        </div>
+      </div>
+      <div class="maker-box">
+        <div class="maker-label">作問者の意図まとめ</div>
+        この問題は「会話全体からLisaの人物像を帰納する力」を試している。③と④の違いは<strong>「without spending much money（お金をかけずに）」という条件があるかどうか</strong>。この一語が全体の主旨を分ける。簡単そうで最も深い読解が必要な問題。
+      </div>
+    </div>
+  </div>
+
+  <div class="step-actions">
+    <button class="btn-secondary" onclick="goPhase(2)">← PHASE 2 に戻る</button>
+    <button class="btn-primary" onclick="goPhase(4)">PHASE 4 → 論理的な読み方の本質</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════
+     PHASE 4 — 本質まとめ
+══════════════════════════ -->
+<div class="phase-panel" id="phase4">
+
+  <div class="phase-badge">
+    <div class="pb-num" style="background:#1a3a5c;">4</div>
+    <div>
+      <div class="pb-text">論理的な読み方の本質</div>
+      <div class="pb-sub">この問題から学ぶ「正確に取り切る力」の作り方</div>
+    </div>
+  </div>
+
+  <!-- 罠の分類 -->
+  <div class="card">
+    <div class="section-label">この問題の罠を分類する — 作問者は何を試していたか</div>
+    <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;">
+      <div style="padding:10px 13px;background:var(--red-light);border-radius:var(--radius);border-left:3px solid var(--red);">
+        <strong style="color:var(--red);">罠①：数字は正しいが意味がずれている</strong><br>
+        $15,000 = tuition（×）→ expenses（○）/ $2,000 = scholarship（×）→ parents（○）<br>
+        <span style="color:var(--text2);">数字を見た瞬間に反応する人、「どの$2,000か」まで読まない人が引っかかる。</span>
+      </div>
+      <div style="padding:10px 13px;background:var(--amber-light);border-radius:var(--radius);border-left:3px solid var(--amber);">
+        <strong style="color:var(--amber);">罠②：副詞・表現の意味をずらす</strong><br>
+        at most / at least / usually / doesn't always / hardly ever<br>
+        <span style="color:var(--text2);">数字は合っているのに「最大」「最小」「部分否定」を間違える人が引っかかる。</span>
+      </div>
+      <div style="padding:10px 13px;background:var(--coral-light);border-radius:var(--radius);border-left:3px solid var(--coral);">
+        <strong style="color:var(--coral);">罠③：単語は登場するが内容が逆・条件が違う</strong><br>
+        "movies" が登場 → "hardly ever" を見落とし → "often" を選ぶ<br>
+        "second-hand" が登場 → "without second-hand" という逆の条件に<br>
+        <span style="color:var(--text2);">単語反応で選ぶ人が最も多く引っかかる罠の種類。</span>
+      </div>
+      <div style="padding:10px 13px;background:var(--purple-light);border-radius:var(--radius);border-left:3px solid var(--purple);">
+        <strong style="color:var(--purple);">罠④：会話にない「ありそうな話」を紛れ込ませる</strong><br>
+        「親の家に戻る」「転職を考えている」「親を喜ばせたい」<br>
+        <span style="color:var(--text2);">会話の雰囲気から「ありそう」と思って選ぶ人が引っかかる。本文根拠がない選択肢は全て×。</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2種類の読み方 -->
+  <div class="card">
+    <div class="section-label">2種類の読み方 — どちらで読んでいたか</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+      <div style="border-radius:var(--radius-lg);overflow:hidden;border:1.5px solid var(--red);">
+        <div style="background:var(--red);padding:9px 13px;color:#fff;font-size:12px;font-weight:700;">❌ 引っかかる読み方</div>
+        <div style="padding:13px;font-size:12px;line-height:1.8;background:var(--red-light);">
+          <div style="margin-bottom:6px;padding:6px 9px;background:#fff;border-radius:6px;">数字を見た瞬間に「あ、これだ」</div>
+          <div style="margin-bottom:6px;padding:6px 9px;background:#fff;border-radius:6px;">単語が登場した選択肢を選ぶ</div>
+          <div style="margin-bottom:6px;padding:6px 9px;background:#fff;border-radius:6px;">副詞（hardly / usually）を読み飛ばす</div>
+          <div style="padding:6px 9px;background:#fff;border-radius:6px;">「ありそう」「なんとなく合う」で選ぶ</div>
+        </div>
+      </div>
+      <div style="border-radius:var(--radius-lg);overflow:hidden;border:1.5px solid var(--teal);">
+        <div style="background:var(--teal);padding:9px 13px;color:#fff;font-size:12px;font-weight:700;">✓ 取り切る読み方</div>
+        <div style="padding:13px;font-size:12px;line-height:1.8;background:var(--teal-light);">
+          <div style="margin-bottom:6px;padding:6px 9px;background:#fff;border-radius:6px;">数字を見たら「誰の・何の・いつの」まで確認</div>
+          <div style="margin-bottom:6px;padding:6px 9px;background:#fff;border-radius:6px;">単語ではなく「文の意味」で照合する</div>
+          <div style="margin-bottom:6px;padding:6px 9px;background:#fff;border-radius:6px;">副詞・否定語を必ず確認する</div>
+          <div style="padding:6px 9px;background:#fff;border-radius:6px;">本文のどこが根拠か指差せる</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4月の鉄則まとめ -->
+  <div style="background:#1a3a5c;border-radius:var(--radius-lg);padding:26px;color:#fff;margin-bottom:14px;">
+    <div style="font-size:17px;font-weight:700;margin-bottom:14px;">4月の鉄則 — この問題でできたか確認する</div>
+    <div style="display:flex;flex-direction:column;gap:11px;">
+      <div style="display:flex;gap:12px;align-items:flex-start;padding:12px 14px;background:rgba(255,255,255,0.08);border-radius:var(--radius);">
+        <div style="width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,0.2);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">①</div>
+        <div style="font-size:14px;line-height:1.75;"><strong>「惜しかった」は存在しない。</strong><br><span style="opacity:0.8;font-size:13px;">「hardly everを見落とした」「at mostの意味を間違えた」は全て同じ×。ミスの種類を特定して次回に繋げる。</span></div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:flex-start;padding:12px 14px;background:rgba(255,255,255,0.08);border-radius:var(--radius);">
+        <div style="width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,0.2);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">②</div>
+        <div style="font-size:14px;line-height:1.75;"><strong>副詞・数字・否定語は命。</strong><br><span style="opacity:0.8;font-size:13px;">usually / hardly ever / at most / less than / doesn't always — これらを読み飛ばすと「数字は合ってるのになぜか間違える」状態になる。</span></div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:flex-start;padding:12px 14px;background:rgba(255,255,255,0.08);border-radius:var(--radius);">
+        <div style="width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,0.2);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">③</div>
+        <div style="font-size:14px;line-height:1.75;"><strong>不正解の選択肢には必ず作った理由がある。</strong><br><span style="opacity:0.8;font-size:13px;">「数字ずらし」「副詞操作」「単語反応」「会話にない話」— この4パターンを知っていれば難問も罠に気づける。</span></div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:flex-start;padding:12px 14px;background:rgba(255,255,255,0.15);border-radius:var(--radius);border:1px solid rgba(255,255,255,0.2);">
+        <div style="width:24px;height:24px;border-radius:50%;background:#fff;color:#1a3a5c;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">✓</div>
+        <div style="font-size:14px;line-height:1.75;"><strong>全問、「本文のどこが根拠か」を指差せること。それが「正確に取り切る力」。</strong><br><span style="opacity:0.85;font-size:13px;">この力は簡単な問題のうちに鍛える。難しくなってから身につけようとしても間に合わない。</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-actions">
+    <button class="btn-secondary" onclick="goPhase(3)">← PHASE 3 に戻る</button>
+    <button class="btn-primary" onclick="goPhase(1)">最初からやり直す</button>
+  </div>
+</div>
+
+</div>
+
+<script>
+var answers={29:3,30:3,31:1,32:3,33:4};
+var selected={};
+
+function sel(qid,num){
+  var qnum=parseInt(qid.replace('q',''));
+  selected[qnum]=num;
+  var btns=document.querySelectorAll('#'+qid+' .choice-btn');
+  btns.forEach(function(b){b.classList.remove('selected');});
+  btns[num-1].classList.add('selected');
+}
+
+function goPhase(n){
+  document.querySelectorAll('.phase-panel').forEach(function(p){p.classList.remove('active');});
+  document.getElementById('phase'+n).classList.add('active');
+  for(var i=1;i<=4;i++){
+    var d=document.getElementById('dot'+i);
+    if(!d)return;
+    d.className='pi-dot';
+    if(i<n)d.classList.add('done');
+    else if(i===n)d.classList.add('active');
+  }
+  document.getElementById('phase-label').textContent='PHASE '+n+' / 4';
+  if(n===3){buildScore();markChoices();}
+  window.scrollTo(0,0);
+}
+
+function buildScore(){
+  var score=0;
+  for(var q=29;q<=33;q++){
+    if(selected[q]===answers[q])score++;
+  }
+  var sd=document.getElementById('score-display');
+  if(sd){
+    sd.textContent=score+' / 5';
+    sd.style.color=score===5?'var(--teal)':score>=3?'var(--amber)':'var(--red)';
+  }
+}
+
+function markChoices(){
+  for(var q=29;q<=33;q++){
+    var qid='q'+q;
+    var btns=document.querySelectorAll('#'+qid+' .choice-btn');
+    var correct=answers[q];
+    var my=selected[q];
+    btns.forEach(function(b,i){
+      b.classList.remove('selected','correct','wrong');
+      if(i+1===correct)b.classList.add('neutral-correct');
+      if(my&&i+1===my&&my!==correct)b.classList.add('wrong');
+    });
+  }
+}
+
+function toggleAns(id){
+  var body=document.getElementById(id+'-body');
+  var arrow=document.getElementById(id+'-arrow');
+  if(!body)return;
+  var isOpen=body.classList.contains('open');
+  body.classList.toggle('open',!isOpen);
+  if(arrow)arrow.style.transform=isOpen?'rotate(0deg)':'rotate(180deg)';
+}
+
+function toggleDetail(id){
+  var el=document.getElementById(id);
+  if(!el)return;
+  el.classList.toggle('open');
+}
+
+// open all answers on phase 3 load
+var _phase3Init=false;
+var _origGoPhase=window.goPhase;
+</script>
+</body>
+</html>
